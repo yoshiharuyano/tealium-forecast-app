@@ -101,8 +101,8 @@ if uploaded_file is not None:
     forecast_df['月'] = forecast_df['Date'].dt.month
 
     # 予測値を季節変動を考慮して算出
-    forecast_df['予測セッション'] = forecast_df.apply(lambda row: row['Visits'] if row['Date'] in past_df['Date'].values else row['Visits'] * row['予測追加係数'], axis=1)
-    forecast_df['予測Event'] = forecast_df.apply(lambda row: row['All Inbound Events'] if row['Date'] in past_df['Date'].values else row['All Inbound Events'] * row['予測追加係数'], axis=1)
+    forecast_df['予測セッション'] = forecast_df.apply(lambda row: row['Visits'] if row['Date'] in past_df['日付'].values else row['Visits'] * row['予測追加係数'], axis=1)
+    forecast_df['予測Event'] = forecast_df.apply(lambda row: row['All Inbound Events'] if row['Date'] in past_df['日付'].values else row['All Inbound Events'] * row['予測追加係数'], axis=1)
 
     st.subheader('予測結果')
     
