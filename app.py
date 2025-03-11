@@ -117,7 +117,8 @@ if uploaded_file is not None:
 
     combined_df = pd.concat([past_df, forecast_df], ignore_index=True)
     combined_df = combined_df.drop(columns=['Profile'], errors='ignore')  # Profile列を削除
-    combined_df = combined_df[combined_df['Profile'] == 'Grand Total']
+    if 'Profile' in combined_df.columns:
+        combined_df = combined_df[combined_df['Profile'] == 'Grand Total']
     st.dataframe(combined_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
