@@ -66,7 +66,7 @@ if uploaded_file is not None:
     # 曜日別平均値を計算
     weekday_avg = df.groupby('曜日')[required_columns].mean()
     weekday_avg.index = weekday_avg.index.astype(int)
-    forecast_df['曜日'] = forecast_df['曜日'].astype(int)
+    forecast_df['曜日'] = pd.to_numeric(forecast_df['曜日'], errors='coerce').fillna(0).astype(int)
 
     st.subheader('曜日ごとの平均値')
     st.dataframe(weekday_avg)
