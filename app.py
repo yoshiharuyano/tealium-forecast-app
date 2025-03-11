@@ -2,18 +2,23 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from io import BytesIO
+import chardet
 
-st.title('Tealiumライセンス利用状況予測システム 2503111818')
+st.title('Tealiumライセンス利用状況予測システム 2503111819')
 
 uploaded_file = st.file_uploader('過去の利用データをアップロードしてください（CSV形式）', type=['csv'])
 
 if uploaded_file is not None:
-    # BytesIO経由で読み込むことでエラー回避
-    try:
-        df = pd.read_csv(uploaded_file, encoding='utf-8')
-    except UnicodeDecodeError:
-        df = pd.read_csv(uploaded_file, encoding='shift_jis')
+    # ファイルのバイトデータを取得し、エンコーディングを自動判定
+    raw_data = uploaded_file.read()
+    detected_encoding = chardet.detect(raw_data)['encoding']
     
+    # デコードしてDataFrameとして読み込む
+    try:
+        df = pd.read_csv(BytesIO(raw_data), encoding=detected_encoding)
+    except Exception as e:
+        st.error(f'CSVファイルの読み込みに失敗しました: {str(e)}')
+
     # 「Grand Total」のデータのみ抽出
     if 'Profile' in df.columns:
         df = df[df['Profile'] == 'Grand Total']
