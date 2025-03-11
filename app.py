@@ -80,8 +80,8 @@ if uploaded_file is not None:
 
     # 予測データ作成
     forecast_dates = pd.date_range(start=forecast_start, periods=forecast_days)
-    forecast_df = pd.DataFrame({'日付': forecast_dates})
-    forecast_df['曜日'] = forecast_df['日付'].dt.weekday
+    forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
+    
     forecast_df['月'] = forecast_df['日付'].dt.month
 
     # 予測値を季節変動を考慮して算出
@@ -90,7 +90,7 @@ if uploaded_file is not None:
             lambda row: weekday_avg.loc[row['曜日'], col] * busy_factor if row['月'] in busy_months else weekday_avg.loc[row['曜日'], col], axis=1)
 
     st.subheader('予測結果')
-    st.dataframe(forecast_df[['日付'] + [f'予測{col}' for col in required_columns]])
+    st.dataframe(forecast_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
     output = BytesIO()
