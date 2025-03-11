@@ -87,7 +87,8 @@ if uploaded_file is not None:
     forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     forecast_df['Omnichannel Events'] = 0  # デフォルト値
     forecast_df['平均point'] = df['Visits'].mean()  # 過去データの平均を使用
-    forecast_df['予測追加係数'] = busy_factor
+    forecast_df['月'] = pd.to_datetime(forecast_df['Date']).dt.month
+    forecast_df['予測追加係数'] = np.where(forecast_df['月'].isin(busy_months), busy_factor, 1.0)
     forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
     forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     
@@ -95,8 +96,8 @@ if uploaded_file is not None:
     forecast_df['月'] = forecast_df['Date'].dt.month
 
     # 予測値を季節変動を考慮して算出
-    forecast_df['予測セッション'] = forecast_df.apply(lambda row: row['Visits'] * busy_factor if row['月'] in busy_months else row['Visits'], axis=1)
-    forecast_df['予測Event'] = forecast_df.apply(lambda row: row['All Inbound Events'] * busy_factor if row['月'] in busy_months else row['All Inbound Events'], axis=1)
+    forecast_df['予測セッション'] = forecast_df['Visits'] * forecast_df['予測追加係数']
+    forecast_df['予測Event'] = forecast_df['All Inbound Events'] * forecast_df['予測追加係数']
 
     st.subheader('予測結果')
     forecast_df['Date'] = forecast_df['Date'].dt.strftime('%Y/%m/%d')
