@@ -99,6 +99,7 @@ if uploaded_file is not None:
     forecast_df['予測Event'] = forecast_df.apply(lambda row: row['All Inbound Events'] * busy_factor if row['月'] in busy_months else row['All Inbound Events'], axis=1)
 
     st.subheader('予測結果')
+    forecast_df['Date'] = forecast_df['Date'].dt.strftime('%Y/%m/%d')
     契約セッション年間ボリューム = st.number_input('契約セッション年間ボリューム', min_value=1, value=10000000)
     forecast_df['契約セッション'] = 契約セッション年間ボリューム / 契約期間の日数
     契約Event年間ボリューム = st.number_input('契約Event年間ボリューム', min_value=1, value=25000000)
@@ -119,6 +120,7 @@ if uploaded_file is not None:
     combined_df = combined_df.drop(columns=['Profile'], errors='ignore')  # Profile列を削除
     if 'Profile' in combined_df.columns:
         combined_df = combined_df[combined_df['Profile'] == 'Grand Total']
+    combined_df['Date'] = pd.to_datetime(combined_df['Date']).dt.strftime('%Y/%m/%d')
     st.dataframe(combined_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
