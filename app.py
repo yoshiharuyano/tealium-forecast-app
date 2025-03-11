@@ -66,6 +66,7 @@ if uploaded_file is not None:
     # 曜日別平均値を計算
     weekday_avg = df.groupby('曜日')[required_columns].mean()
     weekday_avg.index = weekday_avg.index.astype(int)
+    forecast_df['曜日'] = forecast_df['曜日'].astype(int)
 
     st.subheader('曜日ごとの平均値')
     st.dataframe(weekday_avg)
@@ -84,8 +85,8 @@ if uploaded_file is not None:
     forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
     past_df = df[df['日付'].between(pd.to_datetime(契約開始日), pd.to_datetime(契約終了日))].copy()
     forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday.astype(int), 'Date': forecast_dates})
-    forecast_df['Visits'] = forecast_df.apply(lambda row: weekday_avg['Visits'].get(row['曜日'], np.nan) if pd.isna(row['Visits']) else row['Visits'], axis=1)
-    forecast_df['All Inbound Events'] = forecast_df.apply(lambda row: weekday_avg['All Inbound Events'][row['曜日']] if pd.isna(row['All Inbound Events']) else row['All Inbound Events'], axis=1)
+    forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
+    forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     forecast_df['Omnichannel Events'] = 0  # デフォルト値
     forecast_df['平均point'] = df['Visits'].mean()  # 過去データの平均を使用
     forecast_df['月'] = pd.to_datetime(forecast_df['Date']).dt.month
@@ -93,7 +94,7 @@ if uploaded_file is not None:
     forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
     forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     
-    forecast_df['日付'] = forecast_df['Date'].dt.strftime('%Y/%m/%d')
+    forecast_df['Date'] = forecast_df['Date'].dt.strftime('%Y/%m/%d')
     forecast_df['月'] = forecast_df['Date'].dt.month
 
     # 予測値を季節変動を考慮して算出
@@ -119,7 +120,9 @@ if uploaded_file is not None:
     past_df['契約Event累計'] = np.minimum(past_df['契約Event'].cumsum(), 契約Event年間ボリューム)
 
     combined_df = pd.concat([past_df, forecast_df], ignore_index=True)
-    combined_df = combined_df.drop(columns=['Profile'], errors='ignore')  # Profile列を削除
+    if 'Profile' in combined_df.columns:
+        combined_df = combined_df[combined_df['Profile'] == 'Grand Total']
+        combined_df = combined_df.drop(columns=['Profile'], errors='ignore')  # Profile列を削除
     if 'Profile' in combined_df.columns:
         combined_df = combined_df[combined_df['Profile'] == 'Grand Total']
     combined_df['Date'] = pd.to_datetime(combined_df['Date'], errors='coerce')
