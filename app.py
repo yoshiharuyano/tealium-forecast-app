@@ -13,9 +13,8 @@ uploaded_file = st.file_uploader('過去の利用データをアップロード�
 
 if uploaded_file is not None:
     # ファイルをUTF-8で読み込み（エラーを置換して対応）
-    import chardet
-    raw_data = uploaded_file.read()
-    detected_encoding = chardet.detect(raw_data)['encoding']
+        raw_data = uploaded_file.read()
+    detected_encoding = 'utf-8'
     try:
         df = pd.read_csv(BytesIO(raw_data), encoding=detected_encoding, on_bad_lines='skip')
     except Exception as e:
