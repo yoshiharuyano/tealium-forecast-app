@@ -109,7 +109,14 @@ if uploaded_file is not None:
     forecast_df['契約セッション累計'] = forecast_df['契約セッション'].cumsum()
     forecast_df['契約Event累計'] = forecast_df['契約Event'].cumsum()
 
-    combined_df = pd.concat([past_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events']], forecast_df], ignore_index=True)
+    past_df['契約セッション'] = 契約セッション年間ボリューム / len(past_df)
+    past_df['契約Event'] = 契約Event年間ボリューム / len(past_df)
+    past_df['予測セッション累計'] = past_df['Visits'].cumsum()
+    past_df['予測Event累計'] = past_df['All Inbound Events'].cumsum()
+    past_df['契約セッション累計'] = past_df['契約セッション'].cumsum()
+    past_df['契約Event累計'] = past_df['契約Event'].cumsum()
+
+    combined_df = pd.concat([past_df, forecast_df], ignore_index=True)
     st.dataframe(combined_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
