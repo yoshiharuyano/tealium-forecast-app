@@ -91,6 +91,7 @@ if uploaded_file is not None:
     forecast_df['Omnichannel Events'] = 0  # デフォルト値
     forecast_df['平均point'] = df['Visits'].mean()  # 過去データの平均を使用
     forecast_df['Date'] = pd.to_datetime(forecast_df['Date'], errors='coerce')
+    forecast_df['Date'] = pd.to_datetime(forecast_df['Date'], errors='coerce')
     forecast_df['月'] = forecast_df['Date'].dt.month
     forecast_df['予測追加係数'] = np.where(forecast_df['月'].isin(busy_months), busy_factor, 1.0)
     forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
