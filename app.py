@@ -121,8 +121,9 @@ if uploaded_file is not None:
     if 'Profile' in combined_df.columns:
         combined_df = combined_df[combined_df['Profile'] == 'Grand Total']
     combined_df['Date'] = pd.to_datetime(combined_df['Date'], errors='coerce')
+    combined_df = combined_df.dropna(subset=['Date'])  # NaT の行を削除
     combined_df['Date'] = combined_df['Date'].fillna(method='ffill')
-    combined_df['Date'] = combined_df['Date'].dt.strftime('%Y/%m/%d')
+    combined_df['Date'] = combined_df['Date'].fillna(method='ffill').dt.strftime('%Y/%m/%d')
     st.dataframe(combined_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
