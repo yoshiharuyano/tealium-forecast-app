@@ -82,7 +82,8 @@ if uploaded_file is not None:
     forecast_dates = pd.date_range(start=forecast_start, periods=forecast_days)
     forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
     
-    forecast_df['月'] = forecast_df['日付'].dt.month
+    forecast_df['日付'] = forecast_df['Date']
+    forecast_df['月'] = forecast_df['Date'].dt.month
 
     # 予測値を季節変動を考慮して算出
     for col in required_columns:
