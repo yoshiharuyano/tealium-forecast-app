@@ -5,18 +5,20 @@ from io import BytesIO
 
 st.title('Tealiumライセンス利用状況予測システム')
 
-# CSVファイルアップロードに修正（日本語ExcelからのCSV対応）
 uploaded_file = st.file_uploader('過去の利用データをアップロードしてください（CSV形式）', type=['csv'])
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file, encoding='shift_jis')  # Shift_JIS対応
+    df = pd.read_csv(uploaded_file, encoding='shift_jis')
 
-    # 日付処理（Date列を使用）
+    # 「Grand Total」のデータのみ抽出
+    df = df[df['Profile'] == 'Grand Total']
+
+    # 日付処理
     df['日付'] = pd.to_datetime(df['Date'], errors='coerce')
     df = df.dropna(subset=['日付'])
     df['曜日'] = df['日付'].dt.weekday
 
-    # VisitsおよびAll Inbound Events列を曜日別に平均値計算
+    # 曜日別平均値を計算
     weekday_avg = df.groupby('曜日')[['Visits', 'All Inbound Events']].mean()
 
     st.subheader('曜日ごとの平均値')
