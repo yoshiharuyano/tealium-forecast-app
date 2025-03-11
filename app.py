@@ -4,7 +4,7 @@ import numpy as np
 from io import BytesIO
 import chardet
 
-st.title('Tealiumライセンス利用状況予測システム 2503111819')
+st.title('Tealiumライセンス利用状況予測システム')
 
 uploaded_file = st.file_uploader('過去の利用データをアップロードしてください（CSV形式）', type=['csv'])
 
