@@ -83,16 +83,27 @@ if uploaded_file is not None:
     forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
     forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
     forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
+    forecast_df['Omnichannel Events'] = 0  # デフォルト値
+    forecast_df['平均point'] = df['Visits'].mean()  # 過去データの平均を使用
+    forecast_df['予測追加係数'] = busy_factor
+    forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
+    forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     
     forecast_df['日付'] = forecast_df['Date']
     forecast_df['月'] = forecast_df['Date'].dt.month
 
     # 予測値を季節変動を考慮して算出
-    for col in required_columns:
-        forecast_df[f'予測{col}'] = forecast_df.apply(
-            lambda row: weekday_avg.loc[row['曜日'], col] * busy_factor if row['月'] in busy_months else weekday_avg.loc[row['曜日'], col], axis=1)
+    forecast_df['予測セッション'] = forecast_df.apply(lambda row: row['Visits'] * busy_factor if row['月'] in busy_months else row['Visits'], axis=1)
+    forecast_df['予測Event'] = forecast_df.apply(lambda row: row['All Inbound Events'] * busy_factor if row['月'] in busy_months else row['All Inbound Events'], axis=1)
 
     st.subheader('予測結果')
+    forecast_df['契約セッション'] = 273972.6027
+    forecast_df['契約Event'] = 684931.5068
+    forecast_df['予測セッション累計'] = forecast_df['予測セッション'].cumsum()
+    forecast_df['予測Event累計'] = forecast_df['予測Event'].cumsum()
+    forecast_df['契約セッション累計'] = forecast_df['契約セッション'].cumsum()
+    forecast_df['契約Event累計'] = forecast_df['契約Event'].cumsum()
+
     st.dataframe(forecast_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
