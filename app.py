@@ -97,8 +97,10 @@ if uploaded_file is not None:
     forecast_df['予測Event'] = forecast_df.apply(lambda row: row['All Inbound Events'] * busy_factor if row['月'] in busy_months else row['All Inbound Events'], axis=1)
 
     st.subheader('予測結果')
-    forecast_df['契約セッション'] = 273972.6027
-    forecast_df['契約Event'] = 684931.5068
+    契約セッション年間ボリューム = st.number_input('契約セッション年間ボリューム', min_value=1, value=10000000)
+    forecast_df['契約セッション'] = 契約セッション年間ボリューム / forecast_days
+    契約Event年間ボリューム = st.number_input('契約Event年間ボリューム', min_value=1, value=25000000)
+    forecast_df['契約Event'] = 契約Event年間ボリューム / forecast_days
     forecast_df['予測セッション累計'] = forecast_df['予測セッション'].cumsum()
     forecast_df['予測Event累計'] = forecast_df['予測Event'].cumsum()
     forecast_df['契約セッション累計'] = forecast_df['契約セッション'].cumsum()
