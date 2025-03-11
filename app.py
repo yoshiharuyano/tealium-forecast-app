@@ -6,14 +6,18 @@ from io import BytesIO
 from datetime import datetime
 
 current_time = datetime.now().strftime('%y%m%d %H%M')
-st.title(f'Tealiumライセンス利用状況予測システム {current_time}')
+version = 'v1.0.0'
+st.title(f'Tealiumライセンス利用状況予測システム {current_time} {version}')
 
 uploaded_file = st.file_uploader('過去の利用データをアップロードしてください（CSV形式）', type=['csv'])
 
 if uploaded_file is not None:
     # ファイルをUTF-8で読み込み（エラーを置換して対応）
     try:
+        df = try:
         df = pd.read_csv(uploaded_file, encoding='utf-8', on_bad_lines='skip')
+    except UnicodeDecodeError:
+        df = pd.read_csv(uploaded_file, encoding='shift_jis', on_bad_lines='skip')
     except Exception as e:
         st.error(f'CSVファイルの読み込みに失敗しました: {str(e)}')
         st.stop()
