@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from io import BytesIO
 
-st.title('Tealiumライセンス利用状況予測システム')
+st.title('Tealiumライセンス利用状況予測システム 2503111813')
 
 uploaded_file = st.file_uploader('過去の利用データをアップロードしてください（CSV形式）', type=['csv'])
 
