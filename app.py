@@ -8,7 +8,7 @@ st.title('Tealiumライセンス利用状況予測システム')
 uploaded_file = st.file_uploader('過去の利用データをアップロードしてください（CSV形式）', type=['csv'])
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file, encoding='shift_jis')
+    df = pd.read_csv(uploaded_file, encoding='utf-8')
 
     # 「Grand Total」のデータのみ抽出
     df = df[df['Profile'] == 'Grand Total']
