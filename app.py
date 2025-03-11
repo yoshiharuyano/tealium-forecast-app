@@ -91,7 +91,7 @@ if uploaded_file is not None:
     forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
     forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     
-    forecast_df['日付'] = forecast_df['Date']
+    forecast_df['日付'] = forecast_df['Date'].dt.strftime('%Y/%m/%d')
     forecast_df['月'] = forecast_df['Date'].dt.month
 
     # 予測値を季節変動を考慮して算出
