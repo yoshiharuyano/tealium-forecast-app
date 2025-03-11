@@ -81,9 +81,9 @@ if uploaded_file is not None:
 
     # 予測データ作成
     forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
-    all_dates = pd.date_range(start=start_date, end=end_date)
-    past_df = df[df['日付'].between(start_date, end_date)].copy()
-    forecast_df = pd.DataFrame({'曜日': all_dates.weekday, 'Date': all_dates})
+    forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
+    past_df = df[df['日付'].between(契約開始日, 契約終了日)].copy()
+    forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
     forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
     forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     forecast_df['Omnichannel Events'] = 0  # デフォルト値
