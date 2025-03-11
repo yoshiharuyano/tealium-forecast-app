@@ -24,7 +24,7 @@ if uploaded_file is not None:
     try:
         df = pd.read_csv(io.StringIO(raw_data), on_bad_lines='skip')
         df.columns = df.columns.str.strip()  # カラム名の前後の空白を削除
-        st.write('CSVのカラム:', df.columns.tolist())  # デバッグ用にカラム名を表示
+        st.write('CSVのカラム:', df.columns.tolist())  # デバッグ用にカラム名を表示  # デバッグ用にカラム名を表示
     except Exception as e:
         st.error(f'CSVの読み込みに失敗しました。エラー: {str(e)}')
         st.stop()
@@ -81,6 +81,8 @@ if uploaded_file is not None:
     # 予測データ作成
     forecast_dates = pd.date_range(start=forecast_start, periods=forecast_days)
     forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
+    forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
+    forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     
     forecast_df['日付'] = forecast_df['Date']
     forecast_df['月'] = forecast_df['Date'].dt.month
