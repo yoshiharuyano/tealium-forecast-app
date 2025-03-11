@@ -65,6 +65,7 @@ if uploaded_file is not None:
     
     # 曜日別平均値を計算
     weekday_avg = df.groupby('曜日')[required_columns].mean()
+    weekday_avg.index = weekday_avg.index.astype(int)
 
     st.subheader('曜日ごとの平均値')
     st.dataframe(weekday_avg)
@@ -82,8 +83,8 @@ if uploaded_file is not None:
     # 予測データ作成
     forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
     past_df = df[df['日付'].between(pd.to_datetime(契約開始日), pd.to_datetime(契約終了日))].copy()
-    forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
-    forecast_df['Visits'] = forecast_df.apply(lambda row: weekday_avg['Visits'][row['曜日']] if pd.isna(row['Visits']) else row['Visits'], axis=1)
+    forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday.astype(int), 'Date': forecast_dates})
+    forecast_df['Visits'] = forecast_df.apply(lambda row: weekday_avg['Visits'].get(row['曜日'], np.nan) if pd.isna(row['Visits']) else row['Visits'], axis=1)
     forecast_df['All Inbound Events'] = forecast_df.apply(lambda row: weekday_avg['All Inbound Events'][row['曜日']] if pd.isna(row['All Inbound Events']) else row['All Inbound Events'], axis=1)
     forecast_df['Omnichannel Events'] = 0  # デフォルト値
     forecast_df['平均point'] = df['Visits'].mean()  # 過去データの平均を使用
