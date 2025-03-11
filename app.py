@@ -77,10 +77,9 @@ if uploaded_file is not None:
     # 予測期間設定
     契約開始日 = st.date_input('契約開始日を選択', pd.to_datetime(df['日付'].min()))
     契約終了日 = st.date_input('契約終了日を選択', pd.to_datetime(df['日付'].max()))
-    forecast_days = st.number_input('予測する日数', min_value=1, max_value=365, value=30)
+    契約期間の日数 = (契約終了日 - 契約開始日).days
 
     # 予測データ作成
-    forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
     forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
     past_df = df[df['日付'].between(pd.to_datetime(契約開始日), pd.to_datetime(契約終了日))].copy()
     forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
@@ -101,25 +100,25 @@ if uploaded_file is not None:
 
     st.subheader('予測結果')
     契約セッション年間ボリューム = st.number_input('契約セッション年間ボリューム', min_value=1, value=10000000)
-    forecast_df['契約セッション'] = 契約セッション年間ボリューム / forecast_days
+    forecast_df['契約セッション'] = 契約セッション年間ボリューム / 契約期間の日数
     契約Event年間ボリューム = st.number_input('契約Event年間ボリューム', min_value=1, value=25000000)
-    forecast_df['契約Event'] = 契約Event年間ボリューム / forecast_days
+    forecast_df['契約Event'] = 契約Event年間ボリューム / 契約期間の日数
     forecast_df['予測セッション累計'] = forecast_df['予測セッション'].cumsum()
     forecast_df['予測Event累計'] = forecast_df['予測Event'].cumsum()
-    forecast_df['契約セッション累計'] = forecast_df['契約セッション'].cumsum()
-    forecast_df['契約Event累計'] = forecast_df['契約Event'].cumsum()
+    forecast_df['契約セッション累計'] = np.minimum(forecast_df['契約セッション'].cumsum(), 契約セッション年間ボリューム)
+    forecast_df['契約Event累計'] = np.minimum(forecast_df['契約Event'].cumsum(), 契約Event年間ボリューム)
 
-    past_df['契約セッション'] = 契約セッション年間ボリューム / len(past_df)
-    past_df['契約Event'] = 契約Event年間ボリューム / len(past_df)
+    past_df['契約セッション'] = 契約セッション年間ボリューム / 契約期間の日数
+    past_df['契約Event'] = 契約Event年間ボリューム / 契約期間の日数
     past_df['予測セッション累計'] = past_df['Visits'].cumsum()
     past_df['予測Event累計'] = past_df['All Inbound Events'].cumsum()
-    past_df['契約セッション累計'] = past_df['契約セッション'].cumsum()
-    past_df['契約Event累計'] = past_df['契約Event'].cumsum()
+    past_df['契約セッション累計'] = np.minimum(past_df['契約セッション'].cumsum(), 契約セッション年間ボリューム)
+    past_df['契約Event累計'] = np.minimum(past_df['契約Event'].cumsum(), 契約Event年間ボリューム)
 
     combined_df = pd.concat([past_df, forecast_df], ignore_index=True)
     st.dataframe(combined_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
     output = BytesIO()
-    forecast_df.to_excel(output, index=False)
+    combined_df.to_excel(output, index=False)
     st.download_button(label='予測結果をExcelでダウンロード', data=output.getvalue(), file_name='予測結果.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
