@@ -75,12 +75,15 @@ if uploaded_file is not None:
     busy_factor = st.slider('繁忙期の追加係数（例：1.2で20％増）', min_value=1.0, max_value=2.0, step=0.1, value=1.2)
 
     # 予測期間設定
-    forecast_start = st.date_input('予測開始日を選択', pd.Timestamp.today())
+    契約開始日 = st.date_input('契約開始日を選択', pd.to_datetime(df['日付'].min()))
+    契約終了日 = st.date_input('契約終了日を選択', pd.to_datetime(df['日付'].max()))
     forecast_days = st.number_input('予測する日数', min_value=1, max_value=365, value=30)
 
     # 予測データ作成
-    forecast_dates = pd.date_range(start=forecast_start, periods=forecast_days)
-    forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
+    forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
+    all_dates = pd.date_range(start=start_date, end=end_date)
+    past_df = df[df['日付'].between(start_date, end_date)].copy()
+    forecast_df = pd.DataFrame({'曜日': all_dates.weekday, 'Date': all_dates})
     forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
     forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
     forecast_df['Omnichannel Events'] = 0  # デフォルト値
@@ -106,7 +109,8 @@ if uploaded_file is not None:
     forecast_df['契約セッション累計'] = forecast_df['契約セッション'].cumsum()
     forecast_df['契約Event累計'] = forecast_df['契約Event'].cumsum()
 
-    st.dataframe(forecast_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
+    combined_df = pd.concat([past_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events']], forecast_df], ignore_index=True)
+    st.dataframe(combined_df[['曜日', 'Date', 'Visits', 'All Inbound Events', 'Omnichannel Events', '平均point', '予測追加係数', '予測セッション', '予測Event', '契約セッション', '契約Event', '予測セッション累計', '予測Event累計', '契約セッション累計', '契約Event累計']])
 
     # 結果をExcel形式でダウンロード
     output = BytesIO()
