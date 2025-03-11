@@ -23,6 +23,8 @@ if uploaded_file is not None:
         detected_encoding = 'shift_jis'
     try:
         df = pd.read_csv(io.StringIO(raw_data), on_bad_lines='skip')
+        df.columns = df.columns.str.strip()  # カラム名の前後の空白を削除
+        st.write('CSVのカラム:', df.columns.tolist())  # デバッグ用にカラム名を表示
     except Exception as e:
         st.error(f'CSVの読み込みに失敗しました。エラー: {str(e)}')
         st.stop()
