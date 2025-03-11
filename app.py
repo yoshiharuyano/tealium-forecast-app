@@ -13,7 +13,7 @@ uploaded_file = st.file_uploader('過去の利用データをアップロード�
 
 if uploaded_file is not None:
     # ファイルをバイナリで読み込む
-        raw_data = uploaded_file.getvalue()
+    raw_data = uploaded_file.getvalue()
     try:
         raw_data = uploaded_file.getvalue().decode('utf-8')
         detected_encoding = 'utf-8'
@@ -22,6 +22,12 @@ if uploaded_file is not None:
         detected_encoding = 'shift_jis'
     try:
         df = pd.read_csv(BytesIO(raw_data), encoding=detected_encoding, on_bad_lines='skip')
+    except UnicodeDecodeError:
+        df = pd.read_csv(BytesIO(raw_data), encoding='shift_jis', on_bad_lines='skip')
+    except Exception as e:
+        st.error(f'CSVの読み込みに失敗しました。エラー: {str(e)}')
+        st.write(raw_data[:500])  # エラー発生時にデータの一部を表示
+        st.stop()
     except UnicodeDecodeError:
         df = pd.read_csv(BytesIO(raw_data), encoding='shift_jis', on_bad_lines='skip')
     except Exception as e:
