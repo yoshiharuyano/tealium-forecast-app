@@ -83,8 +83,8 @@ if uploaded_file is not None:
     forecast_dates = pd.date_range(start=契約開始日, end=契約終了日)
     past_df = df[df['日付'].between(pd.to_datetime(契約開始日), pd.to_datetime(契約終了日))].copy()
     forecast_df = pd.DataFrame({'曜日': forecast_dates.weekday, 'Date': forecast_dates})
-    forecast_df['Visits'] = weekday_avg['Visits'].reindex(forecast_df['曜日']).values
-    forecast_df['All Inbound Events'] = weekday_avg['All Inbound Events'].reindex(forecast_df['曜日']).values
+    forecast_df['Visits'] = forecast_df.apply(lambda row: weekday_avg['Visits'][row['曜日']] if pd.isna(row['Visits']) else row['Visits'], axis=1)
+    forecast_df['All Inbound Events'] = forecast_df.apply(lambda row: weekday_avg['All Inbound Events'][row['曜日']] if pd.isna(row['All Inbound Events']) else row['All Inbound Events'], axis=1)
     forecast_df['Omnichannel Events'] = 0  # デフォルト値
     forecast_df['平均point'] = df['Visits'].mean()  # 過去データの平均を使用
     forecast_df['月'] = pd.to_datetime(forecast_df['Date']).dt.month
