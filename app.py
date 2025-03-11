@@ -13,9 +13,13 @@ uploaded_file = st.file_uploader('過去の利用データをアップロード�
 
 if uploaded_file is not None:
     # ファイルをバイナリで読み込む
-    import chardet
-    raw_data = uploaded_file.getvalue()
-    detected_encoding = chardet.detect(raw_data)['encoding'] if raw_data else 'utf-8'
+        raw_data = uploaded_file.getvalue()
+    try:
+        raw_data = uploaded_file.getvalue().decode('utf-8')
+        detected_encoding = 'utf-8'
+    except UnicodeDecodeError:
+        raw_data = uploaded_file.getvalue().decode('shift_jis')
+        detected_encoding = 'shift_jis'
     try:
         df = pd.read_csv(BytesIO(raw_data), encoding=detected_encoding, on_bad_lines='skip')
     except UnicodeDecodeError:
