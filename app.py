@@ -14,10 +14,12 @@ uploaded_file = st.file_uploader('過去の利用データをアップロード�
 if uploaded_file is not None:
     # ファイルをバイナリで読み込む
     raw_data = uploaded_file.getvalue()
-    import chardet
-    detected_encoding = chardet.detect(raw_data)['encoding']
+        import chardet
+    detected_encoding = chardet.detect(raw_data)['encoding'] if raw_data else 'utf-8'
     try:
         df = pd.read_csv(BytesIO(raw_data), encoding=detected_encoding, on_bad_lines='skip')
+    except UnicodeDecodeError:
+        df = pd.read_csv(BytesIO(raw_data), encoding='shift_jis', on_bad_lines='skip')
     except Exception as e:
         st.error(f'CSVの読み込みに失敗しました。エラー: {str(e)}')
         st.stop()
